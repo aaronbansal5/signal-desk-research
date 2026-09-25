@@ -7,19 +7,19 @@ A public, server-rendered market-research dashboard for stocks, ETFs and leverag
 - React/Vite responsive frontend with native SVG charts
 - Netlify Functions API (`research`, `recent`, `scheduled-refresh`)
 - One shared research engine for public searches and scheduled runs
-- Alpha Vantage provider adapter; issuer/index adapters are intentionally required before displaying portfolio metrics
-- Optional Supabase Postgres persistence; in-process storage is a local-development fallback only
+- Keyless Yahoo Finance adapter for quotes, history, fundamentals, estimates, news and fund summaries
+- Netlify Blobs persistent history by default; optional Supabase Postgres adapter for relational deployments
 - GitHub Actions DST-safe schedule at 7:00 AM `America/New_York`
 
 ## Local setup
 
 1. Install Node 22+ and run `npm install`.
-2. Copy `.env.example` to `.env` and set `ALPHA_VANTAGE_API_KEY`.
-3. For persistent history, create a Supabase project, execute `database/schema.sql`, and set `SUPABASE_URL` plus `SUPABASE_SERVICE_ROLE_KEY`.
+2. Copy `.env.example` to `.env`. No market-data key is required for the default provider.
+3. Production history uses Netlify Blobs automatically. Supabase remains an optional alternative via `database/schema.sql`, `SUPABASE_URL`, and `SUPABASE_SERVICE_ROLE_KEY`.
 4. Run `npm run dev`, then open `http://localhost:8888`.
 5. Run `npm test`, `npm run lint`, and `npm run build` before deployment.
 
-The Alpha Vantage free plan currently documents 25 daily requests, so public traffic can exhaust it quickly. The server caches complete reports (default 30 minutes), deduplicates daily storage, and limits forced refreshes per process/IP. For meaningful public use, configure a provider with redistribution terms and quota suited to expected traffic.
+Yahoo Finance does not publish an official public API or uptime guarantee. The adapter is keyless but can be throttled or changed. The server caches complete reports (default 30 minutes), deduplicates daily storage, and limits forced refreshes per process/IP. Review Yahoo's terms and configure a licensed provider before commercial redistribution.
 
 ## Deployment
 
@@ -44,4 +44,4 @@ This configuration targets $0/month using Netlify Hobby, Supabase Free and GitHu
 
 The implemented stock path includes prices, valuation multiples, fundamentals returned by the provider, news, 1-year history, moving averages, RSI, MACD, ATR, realized volatility, drawdown, scenarios, model rating, confidence, source lineage and daily comparison. The ETF/ETN routes correctly classify CHAT and FNGU and never apply company valuation directly.
 
-Issuer holdings and official FANG+ constituent ingestion are not guessed. Until production adapters are configured, ETF holdings, look-through P/E/forward P/E/PEG, earnings-contribution tables, and FNGU-vs-FANG+ tracking values remain explicitly unavailable and data quality is `DEGRADED`. This is safer than publishing stale or fabricated portfolio data. Read [METHODOLOGY.md](METHODOLOGY.md) for formulas and validation rules.
+Yahoo fund summaries provide top holdings for SPY and CHAT; look-through P/E/forward P/E/PEG are calculated only over covered positive-earnings weight and coverage is displayed. Official full issuer holdings and FANG+ constituent ingestion are not guessed. FNGU-vs-FANG+ tracking values remain unavailable until a verified underlying series adapter is configured. Read [METHODOLOGY.md](METHODOLOGY.md) for formulas and validation rules.
