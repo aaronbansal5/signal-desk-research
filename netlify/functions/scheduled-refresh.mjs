@@ -1,0 +1,3 @@
+import {buildResearch} from '../../src/server/research.js';
+const WATCHLIST=['CHAT','FNGU'];
+export default async req=>{const auth=req.headers.get('authorization');if(process.env.CRON_SECRET&&auth!==`Bearer ${process.env.CRON_SECRET}`)return Response.json({error:'Unauthorized'},{status:401});const results=[];for(const ticker of WATCHLIST){try{const report=await buildResearch(ticker,{force:true,triggerType:'scheduled'});results.push({ticker,ok:true,rating:report.recommendation.rating})}catch(error){results.push({ticker,ok:false,error:error.message})}}return Response.json({generatedAt:new Date().toISOString(),results,status:results.some(x=>!x.ok)?'partial':'success'})}

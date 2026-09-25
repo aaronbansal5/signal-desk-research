@@ -1,0 +1,20 @@
+name: Daily market research
+on:
+  schedule:
+    - cron: '0 7 * * *'
+      timezone: 'America/New_York'
+  workflow_dispatch:
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Refresh default watchlist
+        env:
+          PUBLIC_SITE_URL: ${{ secrets.PUBLIC_SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          response=$(curl --fail-with-body --retry 3 --retry-all-errors \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" \
+            "$PUBLIC_SITE_URL/api/scheduled-refresh")
+          echo "$response"

@@ -1,0 +1,14 @@
+default_watchlist:
+  - CHAT
+  - FNGU
+overrides:
+  CHAT:
+    type: ACTIVELY_MANAGED_ETF
+    issuer: Roundhill Investments
+    horizon: 6-18 months
+  FNGU:
+    type: LEVERAGED_ETN
+    issuer: Bank of Montreal
+    benchmark: NYSE FANG+ Index
+    leverage: 3
+    horizon: Days to weeks

@@ -1,0 +1,33 @@
+thresholds:
+  strong_buy: 85
+  buy: 70
+  hold: 45
+  sell: 30
+weights:
+  stock:
+    valuation: 20
+    growth: 18
+    quality: 17
+    balance_sheet: 10
+    revisions: 10
+    technicals: 10
+    catalysts: 8
+    risk: 7
+  etf:
+    valuation: 20
+    growth: 18
+    holdings_quality: 17
+    revisions: 10
+    concentration: 10
+    technicals: 12
+    outlook: 8
+    risk: 5
+  leveraged:
+    underlying: 25
+    momentum: 20
+    volatility: 15
+    trend_persistence: 12
+    decay: 10
+    drawdown: 8
+    catalysts: 5
+    issuer_risk: 5
