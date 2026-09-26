@@ -1,0 +1,3 @@
+import { searchSecurities } from '../../src/server/provider.js';
+const buckets=new Map();
+export default async req=>{try{const url=new URL(req.url),query=(url.searchParams.get('q')||'').trim(),ip=req.headers.get('x-nf-client-connection-ip')||'local',now=Date.now(),recent=(buckets.get(ip)||[]).filter(x=>now-x<60000);if(recent.length>=30)return Response.json({error:'Search rate limit exceeded.'},{status:429});recent.push(now);buckets.set(ip,recent);if(query.length<1)return Response.json([]);return Response.json(await searchSecurities(query),{headers:{'Cache-Control':'public, max-age=300, s-maxage=300','X-Content-Type-Options':'nosniff'}})}catch{return Response.json([])}};

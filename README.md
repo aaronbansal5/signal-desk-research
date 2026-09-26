@@ -1,11 +1,11 @@
 # Signal Desk
 
-A public, server-rendered market-research dashboard for stocks, ETFs and leveraged ETNs. It normalizes and validates arbitrary ticker input, retrieves fresh server-side data, classifies the instrument, calculates technicals, scores the result, saves one canonical daily report, and exposes dated history routes.
+A public, server-rendered market-research dashboard for U.S. and Indian stocks, ETFs and leveraged ETNs. Visitors can search by company name or partial ticker, select an American/NSE/BSE listing, and receive currency-aware research. The system validates input, retrieves fresh server-side data, classifies the instrument, calculates technicals, scores the result, saves one canonical daily report, and exposes dated history routes.
 
 ## Architecture
 
 - React/Vite responsive frontend with native SVG charts
-- Netlify Functions API (`research`, `recent`, `scheduled-refresh`)
+- Netlify Functions API (`search`, `research`, `recent`, `scheduled-refresh`)
 - One shared research engine for public searches and scheduled runs
 - Keyless Yahoo Finance adapter for quotes, history, fundamentals, estimates, news and fund summaries
 - Netlify Blobs persistent history by default; optional Supabase Postgres adapter for relational deployments
@@ -43,5 +43,7 @@ This configuration targets $0/month using Netlify Hobby, Supabase Free and GitHu
 ## Coverage and limitations
 
 The implemented stock path includes prices, valuation multiples, fundamentals returned by the provider, news, 1-year history, moving averages, RSI, MACD, ATR, realized volatility, drawdown, scenarios, model rating, confidence, source lineage and daily comparison. The ETF/ETN routes correctly classify CHAT and FNGU and never apply company valuation directly.
+
+Indian listings use Yahoo's `.NS` (NSE) and `.BO` (BSE) symbols. Search queries both U.S. and Indian regions, labels the exchange/market, and reports monetary values and scenario ranges in INR. NSE and BSE listings for the same issuer remain separate choices because liquidity and reported quote fields can differ.
 
 Yahoo fund summaries provide top holdings for SPY and CHAT; look-through P/E/forward P/E/PEG are calculated only over covered positive-earnings weight and coverage is displayed. Official full issuer holdings and FANG+ constituent ingestion are not guessed. FNGU-vs-FANG+ tracking values remain unavailable until a verified underlying series adapter is configured. Read [METHODOLOGY.md](METHODOLOGY.md) for formulas and validation rules.
