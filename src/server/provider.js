@@ -18,13 +18,14 @@ const pctv=v=>val(v)==null?null:val(v)*100;
 export async function fetchYahoo(ticker){
  const isIndia=ticker.endsWith('.NS')||ticker.endsWith('.BO');
  const modules=['price','quoteType','summaryDetail','defaultKeyStatistics','financialData','assetProfile','earningsTrend','calendarEvents','fundProfile','fundPerformance','topHoldings'];
- const [summary,chart,search]=await Promise.all([
+ let [summary,chart,search]=await Promise.all([
   yahoo.quoteSummary(ticker,{modules}),
   yahoo.chart(ticker,{period1:new Date(Date.now()-400*86400000),interval:'1d'}),
   yahoo.search(ticker,{quotesCount:1,newsCount:20,region:isIndia?'IN':'US',lang:isIndia?'en-IN':'en-US'}).catch(()=>({news:[]})),
  ]);
  if(!summary?.price?.regularMarketPrice||!chart?.quotes?.length)throw new Error('Ticker not found.');
  const p=summary.price,s=summary.summaryDetail||{},k=summary.defaultKeyStatistics||{},f=summary.financialData||{},a=summary.assetProfile||{};
+ if(isIndia&&!search.news?.length&&(p.longName||p.shortName))search=await yahoo.search(p.longName||p.shortName,{quotesCount:0,newsCount:20,region:'IN',lang:'en-IN'}).catch(()=>search);
  const history=chart.quotes.filter(x=>x.close!=null).map(x=>({date:new Date(x.date).toISOString().slice(0,10),open:val(x.open),high:val(x.high),low:val(x.low),close:val(x.close),volume:val(x.volume)}));
  const rawHoldings=summary.topHoldings?.holdings||[];
  const enriched=await Promise.all(rawHoldings.slice(0,20).map(async h=>{try{const q=await yahoo.quoteSummary(h.symbol,{modules:['price','summaryDetail','defaultKeyStatistics','financialData']});return{ticker:h.symbol,name:h.holdingName,weight:h.holdingPercent*100,price:val(q.price?.regularMarketPrice),trailingPE:val(q.summaryDetail?.trailingPE),forwardPE:val(q.summaryDetail?.forwardPE||q.defaultKeyStatistics?.forwardPE),trailingEps:val(q.defaultKeyStatistics?.trailingEps),forwardEps:val(q.defaultKeyStatistics?.forwardEps),epsGrowth:val(q.financialData?.earningsGrowth)*100,revenueGrowth:val(q.financialData?.revenueGrowth)*100}}catch{return{ticker:h.symbol,name:h.holdingName,weight:h.holdingPercent*100}}}));
